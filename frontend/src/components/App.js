@@ -13,6 +13,8 @@ const App = () => {
   const [subStatus, setSubStatus] = useState("idle");
   const [errMessage, setErrMessage] = useState("");
 
+  // console.log(formData);
+
   useEffect(() => {
     Object.values(formData).includes("") || formData.order === "undefined"
       ? setDisabled(true)
@@ -21,10 +23,11 @@ const App = () => {
 
   const handleChange = (value, name) => {
     setFormData({ ...formData, [name]: value });
-    setErrMessage("");
+    // setErrMessage("");
   };
 
-  const handleClick = () => {
+  const handleClick = (event) => {
+    event.preventDefault();
     setSubStatus("pending");
 
     fetch("/order", {
@@ -38,16 +41,19 @@ const App = () => {
       .then((res) => res.json())
       .then((json) => {
         const { status, error } = json;
+        // console.log(status, error);
         if (status === "success") {
-          window.location.href = "/order-confirmed";
-          setSubStatus = "confirmed";
+          console.log("succesful");
+          setSubStatus("confirmed");
         } else if (error) {
-          setSubStatus = "error";
+          console.log(error);
+          setSubStatus("error");
+          console.log(errorMessages[error]);
           setErrMessage(errorMessages[error]);
         }
       });
   };
-
+  // console.log(errorMessages);
   return (
     <Wrapper>
       {subStatus !== "confirmed" ? (
@@ -63,7 +69,7 @@ const App = () => {
           {subStatus === "error" && <ErrorMsg>{errMessage}</ErrorMsg>}
         </>
       ) : (
-        <ConfirmationMsg />
+        <ConfirmationMsg formData={formData} />
       )}
     </Wrapper>
   );
